@@ -92,6 +92,7 @@ exports.postAddMeal = async (req, res, next) => {
     numberOfSelection,
     selectionPeriod,
     mealBlocked,
+    mealPrice,
   } = req.body;
   const image = req.files[0];
   try {
@@ -113,6 +114,7 @@ exports.postAddMeal = async (req, res, next) => {
         selectionRule,
         imagePath: image ? imageBaseUrl : "",
         mealBlocked,
+        mealPrice,
       });
       await newMeal.save();
     }
@@ -257,6 +259,7 @@ exports.postEditMeal = async (req, res, next) => {
     selectionPeriod,
     mealId,
     mealBlocked,
+    mealPrice,
   } = req.body;
   const image = req.files[0];
   try {
@@ -279,6 +282,7 @@ exports.postEditMeal = async (req, res, next) => {
     meal.selectionRule.period = selectionPeriod;
     meal.imagePath = image ? imageBaseUrl : meal.imagePath;
     meal.mealBlocked = mealBlocked;
+    meal.mealPrice = mealPrice !== "" ? mealPrice : meal.mealPrice;
     await meal.save();
     res
       .status(201)

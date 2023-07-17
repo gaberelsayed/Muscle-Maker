@@ -40,6 +40,10 @@ const mealSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  mealPrice: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("meal", mealSchema);
