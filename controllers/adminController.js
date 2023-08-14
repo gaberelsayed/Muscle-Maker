@@ -84,11 +84,13 @@ exports.postAddMeal = async (req, res, next) => {
     mealTitle,
     mealTitleEn,
     mealTypes,
+    menuType,
     protine,
     carbohydrates,
     fats,
     calories,
-    description,
+    sugar,
+    mealDescription,
     numberOfSelection,
     selectionPeriod,
     mealBlocked,
@@ -106,11 +108,13 @@ exports.postAddMeal = async (req, res, next) => {
         mealTitle,
         mealTitleEn,
         mealType,
+        menuType,
         protine,
         carbohydrates,
         fats,
         calories,
-        description,
+        sugar,
+        mealDescription,
         selectionRule,
         imagePath: image ? imageBaseUrl : "",
         mealBlocked,
@@ -158,6 +162,8 @@ exports.getMeals = async (req, res, next) => {
   const ITEMS_PER_PAGE = 200;
   let totalItems;
   let page = +req.query.page;
+  const menuType = req.query.menuType;
+  const mealType = req.query.mealType;
   try {
     totalItems = await Meal.find().countDocuments();
     let meals;
@@ -166,9 +172,19 @@ exports.getMeals = async (req, res, next) => {
         .skip((page - 1) * ITEMS_PER_PAGE)
         .limit(ITEMS_PER_PAGE);
     } else {
-      meals = await Meal.find({ mealBlocked: false })
-        .skip((page - 1) * ITEMS_PER_PAGE)
-        .limit(ITEMS_PER_PAGE);
+      if (mealType === "all") {
+        meals = await Meal.find({ mealBlocked: false, menuType: menuType })
+          .skip((page - 1) * ITEMS_PER_PAGE)
+          .limit(ITEMS_PER_PAGE);
+      } else {
+        meals = await Meal.find({
+          mealBlocked: false,
+          mealType: mealType,
+          menuType: menuType,
+        })
+          .skip((page - 1) * ITEMS_PER_PAGE)
+          .limit(ITEMS_PER_PAGE);
+      }
     }
     if (!meals) {
       const error = new Error("No meals found!");
@@ -250,11 +266,13 @@ exports.postEditMeal = async (req, res, next) => {
     mealTitle,
     mealTitleEn,
     mealType,
+    menuType,
     protine,
     carbohydrates,
     fats,
     calories,
-    description,
+    sugar,
+    mealDescription,
     numberOfSelection,
     selectionPeriod,
     mealId,
@@ -272,12 +290,15 @@ exports.postEditMeal = async (req, res, next) => {
     meal.mealTitle = mealTitle !== "" ? mealTitle : meal.mealTitle;
     meal.mealTitleEn = mealTitleEn !== "" ? mealTitleEn : meal.mealTitleEn;
     meal.mealType = mealType !== "" ? mealType : meal.mealType;
+    meal.menuType = menuType !== "" ? menuType : meal.menuType;
     meal.protine = protine !== "" ? protine : meal.protine;
     meal.carbohydrates =
       carbohydrates !== "" ? carbohydrates : meal.carbohydrates;
     meal.fats = fats !== "" ? fats : meal.fats;
     meal.calories = calories !== "" ? calories : meal.calories;
-    meal.description = description !== "" ? description : meal.description;
+    meal.sugar = sugar !== "" ? sugar : meal.sugar;
+    meal.mealDescription =
+      mealDescription !== "" ? mealDescription : meal.mealDescription;
     meal.selectionRule.redundancy = numberOfSelection;
     meal.selectionRule.period = selectionPeriod;
     meal.imagePath = image ? imageBaseUrl : meal.imagePath;

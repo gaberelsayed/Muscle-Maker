@@ -11,6 +11,9 @@ const mealSchema = new Schema({
   mealType: {
     type: String,
   },
+  menuType: {
+    type: String,
+  },
   mealRank: {
     type: Number,
   },
@@ -26,7 +29,10 @@ const mealSchema = new Schema({
   calories: {
     type: String,
   },
-  description: {
+  sugar: {
+    type: String,
+  },
+  mealDescription: {
     type: String,
   },
   imagePath: {
