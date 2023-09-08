@@ -5,9 +5,11 @@ const Meal = require("../models/meal");
 const Admin = require("../models/admin");
 const Message = require("../models/message");
 const ChiffMenu = require("../models/chiffMenu");
+const Orders = require("../models/orders");
 const Transaction = require("../models/transaction");
 const utilities = require("../utilities/utils");
 const Tap = require("../utilities/tap");
+const { isObjectIdOrHexString } = require("mongoose");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 exports.putEditClient = async (req, res, next) => {
@@ -589,6 +591,46 @@ exports.getMenuMealByType = async (req, res, next) => {
       numberOfMeals: dayMeals.mealsNumber,
       numberOfSnacks: dayMeals.snacksNumber,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+/**********************************************************/
+/*                   Orders EndPoints                     */
+/**********************************************************/
+
+exports.postCreateOrder = async (req, res, next) => {
+  try {
+    const {
+      clientName,
+      phoneNumber,
+      plateNumber,
+      carColor,
+      paymentMethod,
+      branchName,
+      orderDetails,
+      orderAmount,
+    } = req.body;
+    const orderData = {
+      clientName,
+      phoneNumber,
+      plateNumber,
+      carColor,
+      paymentMethod,
+      branchName,
+      orderDetails,
+      orderAmount,
+    };
+    console.log(orderData);
+    let order;
+    // make sure that order is paid if payment method is credit
+    order = new Orders(orderData);
+    await order.save();
+    // send the order to foodics systems
+    // receive the response and send order receipt to client
+    res
+      .status(201)
+      .json({ success: true, orderReceipt: order, message: "Order created" });
   } catch (err) {
     next(err);
   }

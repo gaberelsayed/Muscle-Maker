@@ -100,4 +100,10 @@ router.get(
   adminController.getClientContract
 );
 
+/**********************************************************/
+/*                   Orders EndPoints                     */
+/**********************************************************/
+
+router.post("/create/order", clientController.postCreateOrder);
+
 module.exports = router;
