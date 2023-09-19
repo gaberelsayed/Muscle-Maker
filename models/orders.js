@@ -10,6 +10,9 @@ const orderSchema = new Schema(
     phoneNumber: {
       type: String,
     },
+    carModel: {
+      type: String,
+    },
     plateNumber: {
       type: String,
     },

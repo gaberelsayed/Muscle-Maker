@@ -27,12 +27,6 @@ exports.postClientRegister = async (req, res, next) => {
       errMsg.statusCode = 422;
       throw errMsg;
     }
-    const currentClient = await Client.findOne({ email: email });
-    if (currentClient) {
-      const error = new Error("client is already registered");
-      error.statusCode = 422;
-      throw error;
-    }
     const hashedPassword = await bcrypt.hash(password, 12);
     let clientNumber = 1;
     const lastClient = await Client.findOne({}, { subscriptionId: 1 }).sort({

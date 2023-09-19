@@ -599,11 +599,58 @@ exports.getMenuMealByType = async (req, res, next) => {
 /*                   Orders EndPoints                     */
 /**********************************************************/
 
+exports.getMealsCategories = async (req, res, next) => {
+  try {
+    const meals = await Meal.aggregate([
+      {
+        $group: {
+          _id: {
+            menuType: "$menuType",
+            mealType: "$mealType",
+          },
+          meals: {
+            $push: {
+              _id: "$_id",
+              mealTitle: "$mealTitle",
+              imagePath: "$imagePath",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          menuType: "$_id.menuType",
+          mealType: "$_id.mealType",
+          meals: 1,
+        },
+      },
+    ]);
+    res.status(200).json({ success: true, meals });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getMealDetails = async (req, res, next) => {
+  try {
+    const mealId = req.query.mealId;
+    const meal = await Meal.findById(mealId);
+    if (!meal) {
+      throw new Error("Meal not found!");
+    }
+    res.status(200).json({ success: true, meal });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.postCreateOrder = async (req, res, next) => {
   try {
     const {
       clientName,
       phoneNumber,
+      carModel,
       plateNumber,
       carColor,
       paymentMethod,
@@ -614,6 +661,7 @@ exports.postCreateOrder = async (req, res, next) => {
     const orderData = {
       clientName,
       phoneNumber,
+      carModel,
       plateNumber,
       carColor,
       paymentMethod,
@@ -621,7 +669,6 @@ exports.postCreateOrder = async (req, res, next) => {
       orderDetails,
       orderAmount,
     };
-    console.log(orderData);
     let order;
     // make sure that order is paid if payment method is credit
     order = new Orders(orderData);

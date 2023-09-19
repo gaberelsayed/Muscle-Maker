@@ -12,20 +12,9 @@ router.post(
   [
     validation.validateName,
     validation.validatePhoneNumber.custom(async (value, { req }) => {
-      if (value[0] === "9") {
-        return true;
-      } else if (value[0] === "6") {
-        return true;
-      } else if (value[0] === "5") {
-        return true;
-      } else {
-        throw new Error("Your phone number must start with 9 or 6 or 5");
-      }
-    }),
-    validation.validateEmail.custom(async (value, { req }) => {
-      const registeredClient = await Client.findOne({ email: value });
+      const registeredClient = await Client.findOne({ phoneNumber: value });
       if (registeredClient) {
-        const error = new Error("البريد الاليكترونى مسجل من قبل!");
+        const error = new Error("الرقم مسجل من قبل!");
         error.statusCode = 422;
         throw error;
       }
@@ -50,7 +39,7 @@ router.post(
   [
     validation.validatePass.custom(async (value, { req }) => {
       let user;
-      user = await Client.findOne({ email: req.body.username });
+      user = await Client.findOne({ phoneNumber: req.body.phoneNumber });
       if (user) {
         const doMatch = await bcrypt.compare(value, user.password);
         if (!doMatch) {

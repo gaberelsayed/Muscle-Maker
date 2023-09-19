@@ -104,6 +104,10 @@ router.get(
 /*                   Orders EndPoints                     */
 /**********************************************************/
 
+router.get("/meals/categories", clientController.getMealsCategories);
+
+router.get("/meal/details", clientController.getMealDetails)
+
 router.post("/create/order", clientController.postCreateOrder);
 
 module.exports = router;

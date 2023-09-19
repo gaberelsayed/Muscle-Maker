@@ -3,6 +3,7 @@ const path = require("path");
 const bcrypt = require("bcryptjs");
 const PdfDoc = require("pdfkit-table");
 const mongoose = require("mongoose");
+const Extras = require("../models/extras");
 const Meal = require("../models/meal");
 const Bundle = require("../models/bundle");
 const Client = require("../models/client");
@@ -78,6 +79,72 @@ exports.getStats = async (req, res, next) => {
   }
 };
 
+// Extras CRUD Operations
+exports.postCreateExtra = async (req, res, next) => {
+  try {
+    const { extraNameAR, extraNameEN, extraPrice } = req.body;
+    const extraData = {
+      extraNameAR,
+      extraNameEN,
+      extraPrice,
+    };
+    const extra = new Extras(extraData);
+    await extra.save();
+    res.status(201).json({ success: true, message: "New extra craeted" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getAllExtras = async (req, res, next) => {
+  try {
+    const extras = await Extras.find();
+    res.status(200).json({ success: true, extras });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getExtra = async (req, res, next) => {
+  try {
+    const extraId = req.query.extraId;
+    const extra = await Extras.findById(extraId);
+    if (!extra) {
+      const error = new Error("Not found!");
+      error.statusCode = 404;
+      throw error;
+    }
+    res.status(200).json({ success: true, extra });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.putUpdateExtra = async (req, res, next) => {
+  try {
+    const { extraNameAR, extraNameEN, extraPrice, extraId } = req.body;
+    const updateData = {
+      extraNameAR,
+      extraNameEN,
+      extraPrice,
+    };
+    await Extras.findByIdAndUpdate(extraId, updateData);
+    res.status(200).json({ success: true, message: "Extra Updated" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteExtra = async (req, res, next) => {
+  try {
+    const extraId = req.query.extraId;
+    await Extras.findByIdAndDelete(extraId);
+    res.status(200).json({ success: true, message: "Extra deleted" });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Meals CRUD Operations
 exports.postAddMeal = async (req, res, next) => {
   const {
@@ -95,6 +162,7 @@ exports.postAddMeal = async (req, res, next) => {
     selectionPeriod,
     mealBlocked,
     mealPrice,
+    extras,
   } = req.body;
   const image = req.files[0];
   try {
@@ -103,6 +171,10 @@ exports.postAddMeal = async (req, res, next) => {
       redundancy: numberOfSelection,
       period: selectionPeriod,
     };
+    const extrasIds = [];
+    for (let extra of extras) {
+      extrasIds.push(ObjectId(extra));
+    }
     for (let mealType of mealTypes) {
       const newMeal = new Meal({
         mealTitle,
@@ -119,6 +191,7 @@ exports.postAddMeal = async (req, res, next) => {
         imagePath: image ? imageBaseUrl : "",
         mealBlocked,
         mealPrice,
+        extras: extrasIds,
       });
       await newMeal.save();
     }
@@ -246,7 +319,7 @@ exports.getMealsByType = async (req, res, next) => {
 exports.getMeal = async (req, res, next) => {
   const mealId = req.query.mealId;
   try {
-    const meal = await Meal.findById(mealId);
+    const meal = await Meal.findById(mealId).populate("extras");
     if (!meal) {
       const error = new Error("No meals found!");
       error.statusCode = 404;
@@ -278,6 +351,7 @@ exports.postEditMeal = async (req, res, next) => {
     mealId,
     mealBlocked,
     mealPrice,
+    extras,
   } = req.body;
   const image = req.files[0];
   try {
@@ -285,6 +359,12 @@ exports.postEditMeal = async (req, res, next) => {
     let imageBaseUrl;
     if (image) {
       imageBaseUrl = `${req.protocol}s://${req.get("host")}/${image.path}`;
+    }
+    const extrasIds = [];
+    if (extras.length > 0) {
+      for (let extra of extras) {
+        extrasIds.push(ObjectId(extra));
+      }
     }
     meal = await Meal.findById(mealId);
     meal.mealTitle = mealTitle !== "" ? mealTitle : meal.mealTitle;
@@ -304,6 +384,7 @@ exports.postEditMeal = async (req, res, next) => {
     meal.imagePath = image ? imageBaseUrl : meal.imagePath;
     meal.mealBlocked = mealBlocked;
     meal.mealPrice = mealPrice !== "" ? mealPrice : meal.mealPrice;
+    meal.extras = extras.length > 0 ? extrasIds : meal.extras;
     await meal.save();
     res
       .status(201)

@@ -7,6 +7,21 @@ const isAuth = require("../validations/is-Auth");
 // Dashboar stats
 router.get("/get/stats", isAuth.adminIsAuth, adminController.getStats);
 
+// Extras
+router.post(
+  "/create/extra",
+  isAuth.adminIsAuth,
+  adminController.postCreateExtra
+);
+
+router.get("/all/extras", isAuth.adminIsAuth, adminController.getAllExtras);
+
+router.get("/extra", isAuth.adminIsAuth, adminController.getExtra);
+
+router.put("/update/extra", isAuth.adminIsAuth, adminController.putUpdateExtra);
+
+router.delete("/delete/extra", isAuth.adminIsAuth, adminController.deleteExtra);
+
 // Meals
 router.post("/create/meal", isAuth.adminIsAuth, adminController.postAddMeal);
 
