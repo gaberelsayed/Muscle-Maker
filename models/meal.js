@@ -51,11 +51,23 @@ const mealSchema = new Schema(
       type: Number,
       default: 0,
     },
-    extras: [
+    options: [
       {
-        extraId: { type: Schema.Types.ObjectId, ref: "extras" },
+        optionNameAR: { type: String },
+        optionNameEN: { type: String },
+        optionPrice: { type: Number },
       },
     ],
+    extras: [
+      {
+        extraNameAR: { type: String },
+        extraNameEN: { type: String },
+        extraPrice: { type: Number },
+      },
+    ],
+    allowedExtras: {
+      type: Number,
+    },
   },
   { timestamps: true, strictPopulate: false }
 );

@@ -43,6 +43,20 @@ const orderSchema = new Schema(
     orderAmount: {
       type: Number,
     },
+    options: [
+      {
+        optionNameAR: { type: String },
+        optionNameEN: { type: String },
+        optionPrice: { type: Number },
+      },
+    ],
+    extras: [
+      {
+        extraNameAR: { type: String },
+        extraNameEN: { type: String },
+        extraPrice: { type: Number },
+      },
+    ],
   },
   { timestamps: true }
 );
