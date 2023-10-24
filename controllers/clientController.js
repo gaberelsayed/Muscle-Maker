@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const Client = require("../models/client");
 const Bundle = require("../models/bundle");
 const Subscription = require("../models/subscription");
@@ -6,10 +8,10 @@ const Admin = require("../models/admin");
 const Message = require("../models/message");
 const ChiffMenu = require("../models/chiffMenu");
 const Orders = require("../models/orders");
+const Box = require("../models/box");
 const Transaction = require("../models/transaction");
 const utilities = require("../utilities/utils");
-const Tap = require("../utilities/tap");
-const { isObjectIdOrHexString } = require("mongoose");
+const foodics = require("../utilities/foodics");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 exports.putEditClient = async (req, res, next) => {
@@ -626,7 +628,8 @@ exports.getMealsCategories = async (req, res, next) => {
         },
       },
     ]);
-    res.status(200).json({ success: true, meals });
+    const boxes = await Box.find().populate("boxMenu.mealsIds");
+    res.status(200).json({ success: true, meals, boxes });
   } catch (err) {
     next(err);
   }
@@ -635,9 +638,9 @@ exports.getMealsCategories = async (req, res, next) => {
 exports.getMealDetails = async (req, res, next) => {
   try {
     const mealId = req.query.mealId;
-    const meal = await Meal.findById(mealId);
+    let meal = await Meal.findById(mealId);
     if (!meal) {
-      throw new Error("Meal not found!");
+      meal = await Box.findById(mealId).populate("boxMenu.mealsIds");
     }
     res.status(200).json({ success: true, meal });
   } catch (err) {
@@ -655,9 +658,22 @@ exports.postCreateOrder = async (req, res, next) => {
       carColor,
       paymentMethod,
       branchName,
+      branchId,
+      clientNotes,
       orderDetails,
       orderAmount,
     } = req.body;
+    // make sure that order is paid if payment method is credit
+    let orderNumber = 0;
+    const lastOrder = await Orders.findOne({
+      orderNumber: 1,
+      createdAt: 1,
+    }).sort({ createdAt: -1 });
+    if (!lastOrder) {
+      orderNumber = 1;
+    } else {
+      orderNumber = lastOrder.orderNumber + 1;
+    }
     const orderData = {
       clientName,
       phoneNumber,
@@ -666,18 +682,52 @@ exports.postCreateOrder = async (req, res, next) => {
       carColor,
       paymentMethod,
       branchName,
+      branchId,
+      clientNotes,
       orderDetails,
+      orderNumber,
       orderAmount,
     };
     let order;
-    // make sure that order is paid if payment method is credit
     order = new Orders(orderData);
     await order.save();
     // send the order to foodics systems
+    const foodicsResponse = await foodics.sendOrderToFoodics(order);
     // receive the response and send order receipt to client
+    console.log(foodicsResponse);
     res
       .status(201)
       .json({ success: true, orderReceipt: order, message: "Order created" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getFoodicsResponse = async (req, res, next) => {
+  try {
+    const code = req.query.code;
+    const state = req.query.state;
+    console.log(code, state);
+    res.status(200).json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getOrderFollowUp = async (req, res, next) => {
+  try {
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getViewOrdersMenu = async (req, res, next) => {
+  try {
+    const filePath = path.join("data", "MenuSaudi.pdf");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'inline; filename="menu.pdf"');
+    const stream = fs.createReadStream(filePath);
+    stream.pipe(res);
   } catch (err) {
     next(err);
   }

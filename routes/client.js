@@ -106,8 +106,12 @@ router.get(
 
 router.get("/meals/categories", clientController.getMealsCategories);
 
-router.get("/meal/details", clientController.getMealDetails)
+router.get("/meal/details", clientController.getMealDetails);
 
 router.post("/create/order", clientController.postCreateOrder);
+
+router.get("/get/foodics/success", clientController.getFoodicsResponse);
+
+router.get("/view/menu", clientController.getViewOrdersMenu);
 
 module.exports = router;

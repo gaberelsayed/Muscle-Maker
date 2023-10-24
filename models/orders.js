@@ -22,12 +22,31 @@ const orderSchema = new Schema(
     branchName: {
       type: String,
     },
+    branchId: {
+      type: String,
+    },
     orderDetails: [
       {
         mealId: { type: Schema.Types.ObjectId, required: true, ref: "meal" },
         mealTitle: { type: String, required: true },
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
+        options: [
+          {
+            optionId: { type: String },
+            optionNameAR: { type: String },
+            optionNameEN: { type: String },
+            optionPrice: { type: Number },
+          },
+        ],
+        extras: [
+          {
+            extraId: { type: String },
+            extraNameAR: { type: String },
+            extraNameEN: { type: String },
+            extraPrice: { type: Number },
+          },
+        ],
       },
     ],
     paymentMethod: {
@@ -43,20 +62,9 @@ const orderSchema = new Schema(
     orderAmount: {
       type: Number,
     },
-    options: [
-      {
-        optionNameAR: { type: String },
-        optionNameEN: { type: String },
-        optionPrice: { type: Number },
-      },
-    ],
-    extras: [
-      {
-        extraNameAR: { type: String },
-        extraNameEN: { type: String },
-        extraPrice: { type: Number },
-      },
-    ],
+    clientNotes: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

@@ -4,7 +4,9 @@ const router = express.Router();
 const adminController = require("../controllers/adminController");
 const isAuth = require("../validations/is-Auth");
 
-// Dashboar stats
+/******************************************/
+//        DASHBOARD STATES                //
+/******************************************/
 router.get("/get/stats", isAuth.adminIsAuth, adminController.getStats);
 
 // Extras
@@ -22,7 +24,9 @@ router.get("/get/stats", isAuth.adminIsAuth, adminController.getStats);
 
 // router.delete("/delete/extra", isAuth.adminIsAuth, adminController.deleteExtra);
 
-// Meals
+/******************************************/
+//                  MEALS                 //
+/******************************************/
 router.post("/create/meal", isAuth.adminIsAuth, adminController.postAddMeal);
 
 router.get("/get/meals", isAuth.adminIsAuth, adminController.getMeals);
@@ -41,7 +45,9 @@ router.put("/edit/meal", isAuth.adminIsAuth, adminController.postEditMeal);
 
 router.delete("/delete/meal", isAuth.adminIsAuth, adminController.deleteMeal);
 
-// Bundles
+/******************************************/
+//                 BUNDLES                //
+/******************************************/
 router.post(
   "/create/bundle",
   isAuth.adminIsAuth,
@@ -68,7 +74,9 @@ router.delete(
 
 router.get("/bundle/menu", isAuth.adminIsAuth, adminController.getMenuMeals);
 
-//Users
+/******************************************/
+//                  USERS                 //
+/******************************************/
 router.post(
   "/create/employee",
   isAuth.adminIsAuth,
@@ -89,7 +97,9 @@ router.put(
 
 router.delete("/delete/user", isAuth.adminIsAuth, adminController.deleteUser);
 
-// Settings
+/******************************************/
+//               SETTINGS                 //
+/******************************************/
 router.get("/get/settings", isAuth.adminIsAuth, adminController.getSettings);
 
 router.post(
@@ -98,12 +108,18 @@ router.post(
   adminController.postSetSettings
 );
 
+/******************************************/
+//             MENU SETTINGS              //
+/******************************************/
 router.post(
   "/add/chiff/menu",
   isAuth.adminIsAuth,
   adminController.addChiffMenuDay
 );
 
+/******************************************/
+//                CLIENTS                 //
+/******************************************/
 router.delete(
   "/admin/remove/client",
   isAuth.adminIsAuth,
@@ -152,6 +168,9 @@ router.get(
   adminController.getClientPlanDetails
 );
 
+/******************************************/
+//                REPORTS                 //
+/******************************************/
 router.get(
   "/today/delivery/meals",
   isAuth.adminIsAuth,
@@ -205,5 +224,19 @@ router.put("/set/all/meals/delivered", adminController.putDeliverAllMeals);
 // );
 
 // router.get("/active/clients", adminController.getPaymentsHistory);
+
+/******************************************/
+//                  BOXS                  //
+/******************************************/
+
+router.post("/create/box", isAuth.adminIsAuth, adminController.postCreateBox);
+
+router.get("/boxes", isAuth.adminIsAuth, adminController.getBoxes);
+
+router.get("/box", isAuth.adminIsAuth, adminController.getBox);
+
+router.put("/edit/box", isAuth.adminIsAuth, adminController.editBox);
+
+router.delete("/delete/box", isAuth.adminIsAuth, adminController.deleteBox);
 
 module.exports = router;

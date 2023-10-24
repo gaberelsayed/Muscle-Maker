@@ -1,0 +1,24 @@
+Sandbox Account Details: 
+
+{
+  "login_page": "https://console-sandbox.foodics.com/login",
+  "login_email": "hisham_almatroukcom@yahoo.com",
+  "account_number": 227039
+  "login_password": U8djmlkLO8
+}
+
+
+"scopes": [
+        general.read,
+        orders.limited.create,
+        orders.limited.decline,
+        orders.limited.read,
+        orders.limited.pay
+      ]
+
+
+App Creds: 
+
+client_id: 9a49d56a-9511-498b-b54a-5b2d5f150c1e
+client_scret: hX1tYSVaGqYyAnC47wEC6B8THWHAj4fAoz7I3UVZ
+redirect_uri: https://api.musclemakergrillkw.net/api/v1/get/foodics/success

@@ -12,6 +12,7 @@ const Settings = require("../models/settings");
 const Subscription = require("../models/subscription");
 const ChiffMenu = require("../models/chiffMenu");
 const Transaction = require("../models/transaction");
+const Box = require("../models/box");
 const utilities = require("../utilities/utils");
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -2561,3 +2562,114 @@ exports.getClientContract = async (req, res, next) => {
 //     }
 //   }
 // };
+
+/***********************************/
+//             Boxes               //
+/***********************************/
+
+exports.postCreateBox = async (req, res, next) => {
+  try {
+    const {
+      boxNameAr,
+      boxNameEn,
+      mealsNumber,
+      snacksNumber,
+      boxPrice,
+      boxMenu,
+    } = req.body;
+    const file = req.files[0];
+    let boxImage;
+    if (file) {
+      boxImage = `${req.protocol}s://${req.get("host")}/${file.path}`;
+    }
+    const boxData = {
+      boxNameAr,
+      boxNameEn,
+      mealsNumber,
+      snacksNumber,
+      boxPrice,
+      boxImage: boxImage,
+      boxMenu,
+    };
+    const box = new Box(boxData);
+    await box.save();
+    res.status(201).json({ success: true, message: "New Box Created!" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getBoxes = async (req, res, next) => {
+  try {
+    const boxes = await Box.find();
+    res.status(200).json({ success: true, boxes });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getBox = async (req, res, next) => {
+  try {
+    const boxId = req.query.boxId;
+    const box = await Box.findById(boxId).populate("boxMenu.mealsIds");
+    res.status(200).json({ success: true, box });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.editBox = async (req, res, next) => {
+  try {
+    const {
+      boxNameAr,
+      boxNameEn,
+      mealsNumber,
+      snacksNumber,
+      boxPrice,
+      boxMenu,
+      boxId,
+    } = req.body;
+    let file;
+    if (req.files.length > 0) {
+      file = req.files[0];
+    } else {
+      file = "";
+    }
+    const data = {
+      boxNameAr,
+      boxNameEn,
+      mealsNumber,
+      snacksNumber,
+      boxPrice,
+      boxImage: file.path || "",
+      boxMenu,
+    };
+    const updateData = {};
+    for (let key in data) {
+      if (data[key] !== "" && !Array.isArray(key)) {
+        updateData[key] = data[key];
+      } else if (Array.isArray(key) && key.length > 0) {
+        updateData[key] = data[key];
+      }
+    }
+    const updatedBox = await Box.findByIdAndUpdate(boxId, updateData);
+    if (!updatedBox) {
+      const error = new Error("could not update!");
+      error.statusCode = 400;
+      throw error;
+    }
+    res.status(201).json({ success: true, message: "Box updated" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteBox = async (req, res, next) => {
+  try {
+    const boxId = req.query.boxId;
+    await Box.findByIdAndDelete(boxId);
+    res.status(200).json({ success: true, message: "Box deleted!" });
+  } catch (err) {
+    next(err);
+  }
+};
